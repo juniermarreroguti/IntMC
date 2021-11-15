@@ -1,0 +1,1151 @@
+---
+title: "**IntMC**"
+subtitle: "**Int**egration of **M**etabolome with **C**linical Data "
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: kate
+    self_contained: true
+    code_folding: hide
+    toc: true
+    toc_float: 
+      collapsed: false
+      smooth_scroll: false
+runtime: shiny
+bibliography: reference.bib
+csl: springer-vancouver.csl
+nocite: '@*'
+
+
+---
+
+
+```{r Librerias, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library("BiocManager")  
+library("rsconnect")
+library("tidyverse")
+library("dplyr")
+library("flexdashboard")
+library("shiny")
+library("MASS")
+library("ggplot2")
+library("FactoMineR") 
+library("factoextra") 
+library("mixOmics")
+library("ggrepel")
+library("ggdendro")
+library("DT")
+library("plotly")
+library("shinyWidgets")
+options(repos = BiocManager::repositories())
+options("repos")
+
+```
+
+# Overview
+
+-----
+
+<div class=text-justify>
+
+&nbsp;&nbsp;&nbsp;
+Metabolomics has immense potential for early diagnosis and monitoring of therapy and for understanding the pathogenesis of many diseases [@jove_plasma_2017; @zhao_liquid_2018; @dougan_metabolomic_2018; @wei_metabolomics_2013; @righi_metabolomic_2020]. We perceived that it is possible to integrate the results of analytical techniques that study the metabolome with clinical information from patients and not only provide insights into trends and data quality, but also formulate hypotheses and make assumptions with applicability in translational, clinical and diagnostic research.
+
+
+&nbsp;&nbsp;&nbsp;
+On this basis, we developed **IntMC, a tool that integrates the results of the analytical techniques of the metabolome with the clinical characteristics of patients in a dynamic, reproducible and simple way**. Integration is achieved with supervised and unsupervised machine learning techniques.
+
+</div>
+
+
+# IntMC {.tabset .tabset-fade}
+
+---------
+
+
+## Use
+
+<div class=text-justify>
+
+&nbsp;&nbsp;&nbsp;
+Although it is quite intuitive
+
+&nbsp;&nbsp;&nbsp;
+**IntMC** Needs:
+ 
+a) From loaded data
+
+b) Perform the selection of clinical variables
+
+
+&nbsp;&nbsp;&nbsp;
+**IntMC** Delivery:
+
+a) Machine learning analytics
+
+b) New groupings if interested
+
+</div>
+
+
+## Explaining what you Need
+
+
+<div class=text-justify>
+
+
+1. The spectrometry/spectroscopy data with the following organization:
+
+   + Rows as samples and columns as features (ions, m/z, compounds).
+  
+   + The first column will be sample identification (Sample).
+
+2. Clinical data:
+
+   + Rows as the samples and columns as parameters of diagnosis, treatment, etc. (always categorical variables).
+
+   + The first column will be sample identification (Sample).
+
+  3. The first column of spectrum data and clinical data has to match in identification.
+
+  4. Declaration: data is loaded independently, selection of clinical variables is one by one, spectrum range responds to particular types of metabolites
+
+</div>
+
+
+## Explaining what we Deliver
+
+<div class=text-justify>
+
+
+1. Four analyzes [@gu_principal_2011; @le_cao_sparse_2011; @ruiz-perez_so_2020]:
+  
+   + **PCA**: _Principal Component Analysis_ is an unsupervised technique of dimensionality reduction as a function of the original variance of the data.
+  
+   + **PLS-DA**: _Partial Least Squares Regression-Discriminant Analysis_ is a supervised technique of dimensionality reduction as a function of covariance between the original data and its tags.
+  
+   + **Volcano Plot**: is a type of scatterplot used to quickly identify changes in large data sets made up of replicated data. Represents the relationship between the magnitude of change (fold change) and statistical significance (p.value).
+  
+    + **Hierarchical Cluster**: grouping built with an agglomerative strategy to detect entities with similar characteristics, we use the Euclidean distance and as a linking criterion the one proposed by Ward.
+
+2. Have the possibility to create new groups according to various clinical characteristics and obtain the spectrum for samples
+
+</div>
+
+
+
+
+# Try our test data
+
+-----
+
+
+<div class=text-justify>
+
+&nbsp;&nbsp;&nbsp;
+You can check the data format by downloading the tables below, which also allow you to test the application.
+
+
+```{r Download-Examples, context = 'server', echo = FALSE}
+
+c18 <- read.table("C18_Negative.csv",
+                  sep=",",
+                  header = TRUE)
+names(c18) <- gsub("X","", names(c18))
+
+
+clinical <- read.table("Dados_Clinicos.csv",
+                  sep=",",
+                  header = TRUE)
+clinical <- clinical[c(1:80),] 
+names(clinical) <- gsub("X","", names(clinical))
+
+
+wellPanel(
+
+      # Input: Choose dataset ----
+      selectInput("dataset", "Data Examples:",
+                  choices = c("Mass Spectra", "Clinical Data")),
+
+      # Button
+      downloadButton("downloadData", "Download")
+
+    )
+
+
+
+datasetInput <- reactive({
+    switch(input$dataset,
+           "Mass Spectra" = c18,
+           "Clinical Data" = clinical)
+  })
+
+
+# renderTable({
+# 
+#     datasetInput()
+# 
+# })
+
+
+output$downloadData <- downloadHandler(
+    filename = function() {
+      paste(input$dataset,".csv")
+    },
+    content = function(file) {
+      write.table(datasetInput(), file, 
+                sep=",",
+                quote = FALSE,
+                col.names = TRUE,
+                row.names = FALSE)
+    }
+  )
+
+```
+
+```
+NOTE: Note that you can input spectral data with and without pre-processing (transformation, normalization, scaling, etc). But remember, if you build a new grouping mixing different clinical variables, the change in the number of patients forces you to reproduce the pre-processing if you have done so. Another point, despite the fact that the selection of variables is unique, it can respond to groupings obtained by different clinical characteristics.
+```
+
+</div>
+
+
+
+# Let's go...
+
+---------
+
+
+## A. Load Data
+
+
+```{r Carregar-Dados-UI, echo=FALSE}
+
+  splitLayout(
+    
+    fileInput("file1", "Mass Spectra",
+                    multiple = TRUE,
+                    accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")),
+    fileInput("file2", "Clinical Data",
+                    multiple = TRUE,
+                    accept = c("text/csv",
+                             "text/comma-separated-values,text/plain",
+                             ".csv")))
+
+    splitLayout(
+    checkboxInput('header1', 'Header', TRUE),
+    radioButtons('sep1', 'Separator',
+                             c("Tab"='\t',
+                               "Comma"=',',
+                               "Semicolon"=';'),
+                                selected = c("Tab")),
+    checkboxInput('header2', 'Header', TRUE),
+    radioButtons('sep2', 'Separator',
+                             c("Tab"='\t',
+                               "Comma"=',',
+                               "Semicolon"=';'),
+                                selected = c("Tab"))
+               )
+
+  
+  
+
+```
+
+
+
+```{r Carregar Dados-Server, echo=FALSE}
+
+mass.sp <- reactive({
+
+          inFile <- input$file1
+
+          if (is.null(inFile))
+            return(NULL)
+
+            read.table(inFile$datapath,
+                                dec = ".",
+                                sep = input$sep1,
+                                header = input$header1,
+                                stringsAsFactors = FALSE)
+
+})
+
+
+
+clinical.dat <- reactive({
+
+          inFile <- input$file2
+
+          if (is.null(inFile))
+            
+            return(NULL)
+
+            read.table(inFile$datapath,
+                                dec = ".",
+                                sep = input$sep2,
+                                header = input$header2,
+                                stringsAsFactors = FALSE)
+
+})
+
+
+
+renderPrint({
+
+HTML("The data has ", nrow(mass.sp()), "samples and", ncol(mass.sp())-1, " features(m/z).
+  
+The samples are described by", ncol(clinical.dat())-1, "clinical characteristics")
+
+})
+
+
+```
+
+
+```{r Intervalo Features, echo = FALSE}
+
+# Importante para a seleção das features
+
+category <- reactive({
+  
+    inFile <- input$file2
+ 
+    if (is.null(inFile))({
+    
+    E <- return(paste0("No file selected"))
+        
+    }) else({
+      
+    E <- levels(as.factor(names(clinical.dat())[2:ncol(clinical.dat())]))
+      
+    })
+
+  D <- c("None", E)
+
+})
+
+
+aux1 <- reactive({
+
+    aux1 <- data.frame(
+            Features= names(mass.sp())[2:ncol(mass.sp())],
+            Ions= names(mass.sp())[2:ncol(mass.sp())]
+            )
+
+
+    aux1 <- separate(data = aux1,
+                   col = Ions,
+                   into=c("tempo", "ions"),
+                   sep = "_")
+
+    aux1$Features <- gsub("X","", aux1$Features)
+    aux1$ions <- gsub("m.z","", aux1$ions)
+    aux1$ions <- gsub("n","", aux1$ions)
+    aux1$ions <- as.numeric(aux1$ions)
+
+aux1
+
+})
+
+
+```
+
+
+
+## B. Variable Selection
+
+
+<div class=text-justify>
+
+&nbsp;&nbsp;&nbsp;
+
+Consider that when studying a range of spectra you may be focusing on specific types of metabolites. The first approach does not include any clinical variables, only spectral values will be used for groupings.
+
+</div>
+
+
+```{r Leer Variaveis}
+
+renderUI({
+
+wellPanel(
+
+fluidRow(
+    column(6,
+           sliderInput(inputId = "espectro",
+            label = "Spectrum Range: ",
+             min = 50,
+             max = 1700,
+             value = c(400,1000),
+            step=50)),
+    column(6,
+           selectInput("var", "Clinical variables: ",
+                       choices = category(),
+                       selected= category()[1],
+                       multiple = FALSE))
+    )
+      
+)
+           
+})
+  
+# Valores da janela deslizante
+
+values.espectro <- reactive({
+
+data.frame(
+        Name = c("Minimo","Maximo"),
+        Range = as.numeric(input$espectro),
+        stringsAsFactors = FALSE )
+
+})
+
+
+# Resumo do trabalho do usuário
+
+renderPrint({
+
+HTML("Is grouping the data according to the variable", input$var,".
+  
+In the spectrum range of", paste(input$espectro, collapse="~"), "m/z.")
+
+})
+
+
+```
+
+
+
+```{r Unir Variavel, echo= FALSE}
+
+# Unir os dados espectrales e clinicos
+
+data <- reactive({
+  aux1 <- inner_join(clinical.dat(), mass.sp(), by = "Sample")
+  names(aux1) <- gsub("X","", names(aux1))
+  aux1
+})
+
+
+### Esta aqui o NOSSO PROBLEMA. Como definar o menor e maios
+
+set  <- reactive({
+
+  aux2 <- subset(aux1(), aux1()$ions <= values.espectro()[2,2] &
+                   aux1()$ions >= values.espectro()[1,2])
+
+
+  aux3 <- data()[,names(data()) %in% aux2$Features]
+
+  aux4 <- data.frame(data()[,1:length(category())], aux3)
+
+  names(aux4) <- gsub("X","", names(aux4))
+
+  aux4
+
+
+})
+
+
+```
+
+
+
+##  C. Analysis
+
+
+```{r Analises , warning= FALSE, message= FALSE,error=FALSE, echo = FALSE}
+
+# # Painel que mostra as analises que estão implementadas
+
+tabsetPanel(type = "tabs",
+               tabPanel("PCA", 
+                        plotlyOutput("pca")),
+               tabPanel("PLS-DA",plotlyOutput("plsda")),
+               tabPanel("Volcano Plot",plotOutput("volcano")),
+               tabPanel("Hierarchical Cluster",
+                        plotOutput("clustering"))
+
+            )
+
+# seleção de Variaveis
+b <- reactive({
+  
+   N <- length(category())
+  
+   N <- N+1
+   
+   B <- set()[,c(which(names(set())==input$var), 
+                 N:ncol(set()))]
+  
+   B
+
+})
+
+
+# PCA
+ 
+pca.exp <- reactive ({
+  
+  pca(as.matrix(b()[,3:ncol(b())]),
+      ncomp=3,
+      center = TRUE,
+      scale= TRUE)
+  
+
+
+})
+ 
+output$pca <- renderPlotly({
+   
+p <- plotIndiv(pca.exp(),
+          group = b()[,1],
+          pch=as.factor(b()[,1]),
+          legend = TRUE,
+          ind.names = set()[,1],
+          title = paste0("PCA ", input$var)
+          )
+
+df <- p$df
+
+Patients <- gsub("_.*","", set()[,1])
+Patients <- gsub("^","Sample: ", Patients)
+
+f <- ggplot(df, aes(x,
+                    y,
+                    color= group,
+                    group= Patients,
+                    text = Patients)) +
+  geom_point(pch=df$pch, size=df$cex) +
+  labs(title = levels(df$Block),
+       x = p[["graph"]][["labels"]][["x"]],
+       y = p[["graph"]][["labels"]][["y"]]) +
+  scale_color_manual(values=c("blue","darkorange")) +
+  theme_test() +
+  theme(legend.position="bottom",legend.title=element_blank())+
+  geom_hline(yintercept = 0,linetype = "dashed", color="lightgray") +
+  geom_vline(xintercept = 0, linetype = "dashed", color="lightgray")
+
+ggplotly(f,tooltip = "text")
+
+
+})
+
+
+# PLS-DA
+
+
+plsda.exp <- reactive({
+
+  plsda (b()[,2:ncol(b())],
+         as.factor(b()[,1]),
+         ncomp= 5,
+         scale= TRUE,
+         mode= "regression")
+
+
+})
+
+
+
+output$plsda <- renderPlotly({
+
+p <- plotIndiv(plsda.exp(),
+            group = b()[,1],
+            pch=as.factor(b()[,1]),
+            legend = TRUE,
+            ind.names = set()[,1],
+            title = paste0("PLS-DA ", input$var)
+            )
+
+df <- p$df
+
+Patients <- gsub("_.*","", set()[,1])
+Patients <- gsub("^","Sample: ", Patients)
+
+f <- ggplot(df, aes(x,
+                    y,
+                    color= group,
+                    group= Patients,
+                    text = Patients)) +
+  geom_point(pch=df$pch, size=df$cex) +
+  labs(title = levels(df$Block),
+       x = p[["graph"]][["labels"]][["x"]],
+       y = p[["graph"]][["labels"]][["y"]]) +
+  scale_color_manual(values=c("blue","darkorange")) +
+  theme_test() +
+  theme(legend.position="bottom",legend.title=element_blank())+
+  geom_hline(yintercept = 0,linetype = "dashed", color="lightgray") +
+  geom_vline(xintercept = 0, linetype = "dashed", color="lightgray")
+
+ggplotly(f,tooltip = "text")
+
+
+})
+
+# Volcano plot
+
+volcano.exp <- reactive({
+
+  G0 <- as.data.frame(table(b()[,1]))
+  G1 <- G0[1,1]
+  G2 <- G0[2,1]
+
+g <- NULL
+       for (i in 2:ncol(b())) {
+         AG <- which(b()[,1] == G1)
+         BG <- which(b()[,1] == G2)
+
+         median.AG <- median(b()[which(b()[,1] == G1),i])
+         median.BG <- median(b()[which(b()[,1] == G2),i])
+         fold.change <- median.AG/median.BG
+         log2FC <- log2(fold.change)
+
+         wilcox <- wilcox.test(b()[which(b()[,1] == G1),i],
+                               b()[which(b()[,1] == G2),i])$p.value
+
+         f <- cbind (median.AG,
+                     median.BG,
+                     fold.change,
+                     log2FC,
+                     wilcox)
+
+         g <- rbind(g,f)
+
+       }
+
+       p <- data.frame(g)
+       M <- names(b())[2:ncol(b())]
+       rownames(p) <- M
+       p <- data.frame(Compound=rownames(p),p)
+       rownames(p) <- NULL
+       names(p)[c(2,3)] <- c(as.character(G1),
+                             as.character(G2))
+       p_values_BH <- p.adjust(p = p$wilcox, method = "BH")
+       p <- data.frame(p, p.adjust=p_values_BH)
+       p$Compound <- gsub("X","",p$Compound)
+
+ p
+
+})
+ 
+ 
+output$volcano <- renderPlot({
+
+ggplot(volcano.exp(),aes(x=log2FC, y=-log2(wilcox))) +
+          geom_point()+
+          theme_test() +
+          labs(title = paste0("Volcano plot ",
+                              input$var, "  ",
+                              names(volcano.exp())[2], " vs ",
+                              names(volcano.exp())[3]))+
+          xlab ("log2(FC)") +
+          ylab (" -log2(p-value)") +
+          geom_hline(yintercept = -log2(0.05),
+                     linetype = "dashed", color="lightgray")+
+          geom_vline(xintercept =  log2(2),
+                     linetype = "dashed", color="lightgray")+
+          geom_vline(xintercept = - log2(2), linetype = "dashed",
+                     color="lightgray")+
+          scale_x_continuous(limits = c(-3, 3),breaks = c(-1,0,1))+
+          scale_y_continuous(limits = c(0, 8),breaks = c(0,4.32))
+
+})
+
+
+# Clustering
+
+clustering.exp <- reactive ({
+
+                set.seed(1234)
+                group <- hclust(dist(b()[,-1], method = 'euclidean'),
+                                method = 'ward.D')
+                dend <- as.dendrogram(group)
+                dend_data <- dendro_data(dend, type = "rectangle")
+dend_data
+
+})
+
+output$clustering <- renderPlot({
+
+  ggplot(clustering.exp()$segments) +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
+              labs(x="",
+                   y="Heigth",
+                   title = paste0("Clustering ",
+                              input$var),
+                   color = input$var) +
+              coord_flip()+
+              scale_y_reverse() +
+              geom_point(data =clustering.exp()$labels,
+                  aes(x = x,
+                      y = -0.1e8,
+                      label = b()[clustering.exp()$labels$label,1],
+              colour = as.factor(b()[clustering.exp()$labels$label,1])),
+                  hjust =1, angle = 0, size =2)+
+              theme_test() +
+              scale_color_manual(values=c("blue","darkorange")) +
+              theme(legend.position = "bottom")
+
+
+
+})
+
+
+g <- reactive({
+
+  g <- data.frame(table(b()[,1]))
+  names(g) <- c(paste0("Category-",input$var),
+                "Amount")
+
+  g
+
+})
+
+
+renderDataTable({
+  datatable(g(), rownames = FALSE,options = list(dom = 't'))
+
+  })
+
+
+```
+
+
+## D. New groups
+
+
+<div class=text-justify>
+
+&nbsp;&nbsp;&nbsp;
+We understand that it could be interesting to explore how the separation of patients occurs if we carry out groupings based on more than one clinical characteristic. To support the user in this task we developed this section in which he will be free to form new datasets. When changing the configuration of the groups, we provide tools for downloading clinical and spectral data separately so that they can be analyzed again by this tool. Remember that if the pre-processing of data was carried out before the formation of these new groups, they must undergo pre-processing. 
+
+</div>
+
+
+```{r Ajuda-UI, echo = FALSE}
+
+
+renderUI({
+  
+  
+  
+tabsetPanel(
+    
+    tabPanel("Selection",
+# Variavies clinicas             
+             fluidRow(
+                      column(3,
+                             selectInput("clinica1", "Clinical variables 1: ",
+                                         choices = categoria1(),
+                                         selected= categoria1()[1],
+                                         multiple = FALSE)),
+                      column(3,
+                             selectInput("clinica2", "Clinical variables 2: ",
+                                         choices = categoria2(),
+                                         selected= categoria2()[1],
+                                         multiple = FALSE)), 
+                      column(3,
+                             selectInput("clinica3", "Clinical variables 3: ",
+                                         choices = categoria3(),
+                                         selected= categoria3()[1],
+                                         multiple = FALSE)),
+                      column(3,
+                             selectInput("clinica4", "Clinical variables 4: ",
+                                         choices = categoria4(),
+                                         selected= categoria4()[1],
+                                         multiple = FALSE))
+             ),
+
+# Categorias de variaveis             
+renderUI({
+             fluidRow(
+                      column(3,
+                             selectInput("cat1", "Category: ",
+                                         choices = value1(),
+                                         selected= value1()[1],
+                                         multiple = FALSE)),
+                      column(3,
+                             selectInput("cat2", "Category: ",
+                                         choices = value2(),
+                                         selected= value2()[1],
+                                         multiple = FALSE)),
+                      column(3,
+                             selectInput("cat3", "Category: ",
+                                         choices = value3(),
+                                         selected= value3()[1],
+                                         multiple = FALSE)),
+                      column(3,
+                             selectInput("cat4", "Category: ",
+                                         choices = value4(),
+                                         selected= value4()[1],
+                                         multiple = FALSE))
+             )
+        }),
+
+textOutput("resumo"),
+   
+wellPanel(
+    
+  fluidRow(
+    column(6,
+     selectInput("filter.spectrum", "Mass Spectra: ",
+                    choices = c("Filtered Mass Spectra")),
+     downloadButton("downloadData1", "Download")),
+    column(6,
+     selectInput("filter.clinic", "Clinical Data:",
+                    choices = c("Filtered Clinical Data")),
+     downloadButton("downloadData2", "Download"))
+          )
+      )
+          )
+    
+    
+    )
+
+
+  
+})
+
+
+```
+
+
+
+```{r Ajuda-Identifação de variavies, echo=FALSE}
+
+# Variaveis Clinicas
+
+categoria1 <- reactive({
+  
+    inFile <- input$file2
+ 
+    if (is.null(inFile))({
+    
+    E <- return(paste0("No file selected"))
+        
+    }) else({
+      
+    E <- levels(as.factor(names(clinical.dat())[2:ncol(clinical.dat())]))
+      
+    })
+
+  D <- c("None", E)
+
+})
+
+
+
+categoria2 <- reactive({
+  
+    inFile <- input$file2
+ 
+    if (is.null(inFile))({
+    
+    E <- return(paste0("No file selected"))
+        
+    }) else({
+      
+    E <- levels(as.factor(names(clinical.dat())[2:ncol(clinical.dat())]))
+      
+    })
+
+  D <- c("None", E)
+
+})
+
+
+categoria3 <- reactive({
+  
+    inFile <- input$file2
+ 
+    if (is.null(inFile))({
+    
+    E <- return(paste0("No file selected"))
+        
+    }) else({
+      
+    E <- levels(as.factor(names(clinical.dat())[2:ncol(clinical.dat())]))
+      
+    })
+
+  D <- c("None", E)
+
+})
+
+
+
+categoria4 <- reactive({
+  
+    inFile <- input$file2
+ 
+    if (is.null(inFile))({
+    
+    E <- return(paste0("No file selected"))
+        
+    }) else({
+      
+    E <- levels(as.factor(names(clinical.dat())[2:ncol(clinical.dat())]))
+      
+    })
+
+  D <- c("None", E)
+
+})
+
+
+# Valores das Variaveis
+
+value1 <- reactive({
+  
+ Y <- data.frame(Sample = clinical.dat()[,1],
+            Value= clinical.dat()[, which(names(clinical.dat())==input$clinica1)])
+ Y <- as.character(unique(Y$Value))
+ Y <- c("None", Y)
+ Y
+})
+
+
+value2 <- reactive({
+  
+ Y <- data.frame(Sample = clinical.dat()[,1],
+            Value= clinical.dat()[, which(names(clinical.dat())==input$clinica2)])
+ Y <- as.character(unique(Y$Value))
+ Y <- c("None", Y)
+ Y
+})
+
+
+value3 <- reactive({
+  
+ Y <- data.frame(Sample = clinical.dat()[,1],
+            Value= clinical.dat()[, which(names(clinical.dat())==input$clinica3)])
+ Y <- as.character(unique(Y$Value))
+ Y <- c("None", Y)
+ Y
+})
+
+
+
+value4 <- reactive({
+  
+ Y <- data.frame(Sample = clinical.dat()[,1],
+            Value= clinical.dat()[, which(names(clinical.dat())==input$clinica4)])
+ Y <- as.character(unique(Y$Value))
+ Y <- c("None", Y)
+ Y
+})
+
+
+
+```
+
+
+```{r Seleção-Variaveis, echo=FALSE}
+
+
+H <- reactive({
+  
+  H <- data.frame(Sample = clinical.dat()[,1],
+                  Value= clinical.dat()[, 
+                    c(which(names(clinical.dat())==input$clinica1),
+                      which(names(clinical.dat())==input$clinica2),
+                      which(names(clinical.dat())==input$clinica3),                                             which(names(clinical.dat())==input$clinica4))])
+  H
+  
+})
+
+
+
+J <- reactive({
+
+  if(input$cat1 != "None"){
+
+    A <- data.frame(Sample = clinical.dat()[,1],
+                    Value= clinical.dat()[,
+                    c(which(names(clinical.dat())==input$clinica1))])
+
+    A <- subset(A,A[,2] == input$cat1)
+
+  } else {
+
+    A <-NULL}
+
+
+ if(input$cat2 != "None"){
+
+    B <- data.frame(Sample = clinical.dat()[,1],
+                    Value= clinical.dat()[,
+                    c(which(names(clinical.dat())==input$clinica2))])
+
+    B <- subset(B,B[,2] == input$cat2)
+
+  } else {
+
+    B <-NULL}
+
+
+  if(input$cat3 != "None"){
+
+    C <- data.frame(Sample = clinical.dat()[,1],
+                    Value= clinical.dat()[,
+                    c(which(names(clinical.dat())==input$clinica3))])
+
+    C <- subset(C,C[,2] == input$cat3)
+
+  } else {
+
+    C <-NULL}
+
+
+    if(input$cat4 != "None"){
+
+    D <- data.frame(Sample = clinical.dat()[,1],
+                    Value= clinical.dat()[,
+                    c(which(names(clinical.dat())==input$clinica4))])
+
+    D <- subset(D,D[,2] == input$cat4)
+
+  } else {
+
+    D <-NULL}
+
+
+  a <- A[,1]
+  b <- B[,1]
+  c <- C[,1]
+  d <- D[,1]
+  
+
+  if(!is.null(a)& is.null(b)& is.null(c)& is.null(d))
+  {E <- Reduce(intersect, list(a))}
+
+  if(is.null(a)& !is.null(b)& is.null(c)& is.null(d))
+  {E <- Reduce(intersect, list(b))}
+
+  if(is.null(a)& is.null(b)& !is.null(c)& is.null(d))
+  {E <- Reduce(intersect, list(c))}
+
+  if(is.null(a)& is.null(b) & is.null(c)& !is.null(d))
+    {E <- Reduce(intersect, list(d))}
+
+  if(!is.null(a)& !is.null(b)& is.null(c)& is.null(d))
+    {E <- Reduce(intersect, list(a,b))}
+
+  if(!is.null(a)&!is.null(c))
+    {E <- Reduce(intersect, list(a,c))}
+
+  if(!is.null(a)& is.null(b)& is.null(c)& !is.null(d))
+    {E <- Reduce(intersect, list(a,d))}
+
+  if(is.null(a)& !is.null(b)& !is.null(c)& is.null(d))
+    {E <- Reduce(intersect, list(b,c))}
+
+  if(!is.null(b)&!is.null(d))
+    {E <- Reduce(intersect, list(b,d))}
+
+  if(is.null(a)& is.null(b)& !is.null(c)& !is.null(d))
+  {E <- Reduce(intersect, list(c,d))}
+
+
+  if(!is.null(a)& !is.null(b)& !is.null(c)& is.null(d))
+    {E <- Reduce(intersect, list(a,b,c))}
+
+  if(!is.null(a)& !is.null(b)& is.null(c)& !is.null(d))
+    {E <- Reduce(intersect, list(a,b,d))}
+
+  if(!is.null(a)& is.null(b)& !is.null(c)& !is.null(d))
+    {E <- Reduce(intersect, list(a,c,d))}
+
+
+  if(!is.null(a) & !is.null(b) & !is.null(c) & !is.null(d))
+    {E <- Reduce(intersect, list(a,b,c,d))}
+  E
+
+
+})
+
+
+clinical.filter <- reactive({
+
+  P <- clinical.dat()[clinical.dat()[,1] %in% J(),]
+
+  P
+
+})
+
+
+mass.filter <- reactive({
+
+  R <- mass.sp()[mass.sp()[,1] %in% J(),]
+
+  R
+
+})
+
+
+
+
+
+```
+
+
+```{r Download-Filtering, echo=FALSE}
+
+
+# output$resumo <- renderText({
+#   
+#   paste0("Vamos a escrebir como funciona el classificadaor", )
+#   
+#   
+# })
+
+
+
+
+################################################
+dataOutputMass <- reactive({
+    switch(input$filter.spectrum,
+           "Filtered Mass Spectra" = mass.filter())
+  })
+
+output$downloadData1 <- downloadHandler(
+    filename = function() {
+      paste("Spectrum-Data-Filtering.csv")
+    },
+    content = function(file) {
+      write.csv(dataOutputMass(), file, quote = FALSE, row.names = FALSE)
+    }
+  )
+
+###########################################################
+
+dataOutputClinical <- reactive({
+    switch(input$filter.clinic,
+           "Filtered Clinical Data" = clinical.filter())
+  })
+
+output$downloadData2 <- downloadHandler(
+    filename = function() {
+      paste("Clincal-Data-Filtering.csv")
+    },
+    content = function(file) {
+      write.csv(dataOutputClinical(), file, quote = FALSE, row.names = FALSE)
+    }
+  )
+
+
+```
+
+
+# Reference
+
+----
+
