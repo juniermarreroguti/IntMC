@@ -25,22 +25,18 @@ nocite: '@*'
 
 knitr::opts_chunk$set(echo = TRUE)
 
-library("BiocManager")  
-library("rsconnect")
-library("tidyverse")
-library("dplyr")
-library("flexdashboard")
-library("shiny")
-library("MASS")
-library("ggplot2")
-library("FactoMineR") 
-library("factoextra") 
-library("mixOmics")
-library("ggrepel")
-library("ggdendro")
-library("DT")
-library("plotly")
-library("shinyWidgets")
+if(!require("pacman")){install.packages("pacman"); library("pacman")}
+
+librerias <- c("BiocManager", "dplyr","rsconnect", "shiny",
+               "ggplot2", "tidyverse", "tidyr", "flexdashboard",
+               "ggpubr","dendextend", "MASS", "plotly",
+               "knitr", "mixOmics", "FactoMineR",
+               "factoextra","DT", "shinyWidgets",
+               "ggpubr","plyr")
+
+
+p_load(char = librerias)
+
 options(repos = BiocManager::repositories())
 options("repos")
 
