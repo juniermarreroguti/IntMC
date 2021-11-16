@@ -148,13 +148,13 @@ You can check the data format by downloading the tables below, which also allow 
 
 ```{r Download-Examples, context = 'server', echo = FALSE}
 
-c18 <- read.table("C18_Negative.csv",
+c18 <- read.table("Data/C18_Negative.csv",
                   sep=",",
                   header = TRUE)
 names(c18) <- gsub("X","", names(c18))
 
 
-clinical <- read.table("Dados_Clinicos.csv",
+clinical <- read.table("Data/Dados_Clinicos.csv",
                   sep=",",
                   header = TRUE)
 clinical <- clinical[c(1:80),] 
