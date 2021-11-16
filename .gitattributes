@@ -1,4 +1,7 @@
-* text=auto
+IntMC.Rmd linguist-documentation=true
+
+*.Rmd linguist-language=RMarkdown
+
 
 
 
