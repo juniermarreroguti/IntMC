@@ -1,6 +1,5 @@
-IntMC.Rmd linguist-documentation=true
+*.[Rr]md linguist-language=R
 
-*.Rmd linguist-language=RMarkdown
 
 
 
