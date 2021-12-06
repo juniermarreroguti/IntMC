@@ -30,7 +30,7 @@ if(!require("pacman")){install.packages("pacman"); library("pacman")}
 librerias <- c("BiocManager", "dplyr","rsconnect", "shiny",
                "ggplot2", "tidyverse", "tidyr", "flexdashboard",
                "ggpubr","dendextend", "MASS", "plotly",
-               "knitr", "mixOmics", "FactoMineR",
+               "knitr", "mixOmics", "FactoMineR","DT",
                "factoextra","DT", "shinyWidgets",
                "ggpubr","plyr")
 
@@ -164,14 +164,17 @@ names(clinical) <- gsub("X","", names(clinical))
 wellPanel(
 
       # Input: Choose dataset ----
-      selectInput("dataset", "Data Examples:",
+      selectInput("dataset", "Data Examples for Download:",
                   choices = c("Mass Spectra", "Clinical Data")),
 
       # Button
-      downloadButton("downloadData", "Download")
+      downloadButton("downloadData", "Download"),
+      
+      h5(strong("Sample Data Visualization")),
+        
+      dataTableOutput('table')
 
-    )
-
+)
 
 
 datasetInput <- reactive({
@@ -179,6 +182,23 @@ datasetInput <- reactive({
            "Mass Spectra" = c18,
            "Clinical Data" = clinical)
   })
+
+
+output$table <- renderDT({
+
+  DT::datatable(datasetInput(),
+            extensions = c('FixedColumns'),
+            options = list(pageLength = 10,
+                      dom = 'lti', 
+            columnDefs = list(
+                         list(className = 'dt-center', targets = "_all")),
+            fixedColumns = list(leftColumns = 1),
+            scrollX = TRUE
+            ),
+            rownames = FALSE
+  )
+
+})
 
 
 # renderTable({
