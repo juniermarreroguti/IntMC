@@ -40,7 +40,7 @@ p_load(char = librerias)
 options(repos = BiocManager::repositories())
 options("repos")
 
-options(shiny.maxRequestSize=40*1024^2)    # equivale a 1GB upload
+options(shiny.maxRequestSize=40*1024^2)    # equivale a 40MB upload
 
 ```
 
