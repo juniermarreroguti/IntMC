@@ -29,9 +29,9 @@ if(!require("pacman")){install.packages("pacman"); library("pacman")}
 
 librerias <- c("BiocManager", "dplyr","rsconnect", "shiny",
                "ggplot2", "tidyverse", "tidyr", "flexdashboard",
-               "ggpubr","dendextend", "MASS", "plotly",
+               "ggpubr","dendextend", "MASS", "plotly","ggdendro",
                "knitr", "mixOmics", "FactoMineR","DT",
-               "factoextra","DT", "shinyWidgets",
+               "factoextra","shinyWidgets",
                "ggpubr","plyr")
 
 
@@ -255,7 +255,9 @@ NOTE: Note that you can input spectral data with and without pre-processing (tra
                              ".csv")))
 
     splitLayout(
+    verticalLayout(  
     checkboxInput('header1', 'Header', TRUE),
+    checkboxInput('ionsid', 'rt_mz', TRUE)),
     radioButtons('sep1', 'Separator',
                              c("Tab"='\t',
                                "Comma"=',',
@@ -348,23 +350,36 @@ category <- reactive({
 })
 
 
+
 aux1 <- reactive({
 
-    aux1 <- data.frame(
-            Features= names(mass.sp())[2:ncol(mass.sp())],
-            Ions= names(mass.sp())[2:ncol(mass.sp())]
-            )
-
-
-    aux1 <- separate(data = aux1,
-                   col = Ions,
-                   into=c("tempo", "ions"),
-                   sep = "_")
-
-    aux1$Features <- gsub("X","", aux1$Features)
-    aux1$ions <- gsub("m.z","", aux1$ions)
-    aux1$ions <- gsub("n","", aux1$ions)
-    aux1$ions <- as.numeric(aux1$ions)
+        if (input$ionsid == TRUE) {
+        
+          aux1 <- data.frame(
+                    Features= names(mass.sp())[2:ncol(mass.sp())],
+                    Ions= names(mass.sp())[2:ncol(mass.sp())]
+                    )
+            
+          aux1 <- separate(data = aux1,
+                           col = Ions,
+                           into=c("tempo", "ions"),
+                           sep = "_")
+        
+            aux1$Features <- gsub("X","", aux1$Features)
+            aux1$ions <- gsub("m.z","", aux1$ions)
+            aux1$ions <- gsub("n","", aux1$ions)
+            aux1$ions <- as.numeric(aux1$ions)
+  
+} else {
+  
+            aux1 <- data.frame(
+            ions= names(mass.sp())[2:ncol(mass.sp())])
+            
+            aux1$ions <- gsub("X","", aux1$ions)
+            aux1$ions <- as.numeric(aux1$ions)
+  
+}
+    
 
 aux1
 
@@ -458,16 +473,17 @@ set  <- reactive({
                    aux1()$ions >= values.espectro()[1,2])
 
 
-  aux3 <- data()[,names(data()) %in% aux2$Features]
-
+  aux3 <- data()[,names(data()) %in% aux2[,1]]
+  
   aux4 <- data.frame(data()[,1:length(category())], aux3)
-
+  
   names(aux4) <- gsub("X","", names(aux4))
-
+   
   aux4
 
 
 })
+
 
 
 ```
@@ -510,7 +526,7 @@ b <- reactive({
  
 pca.exp <- reactive ({
   
-  pca(as.matrix(b()[,3:ncol(b())]),
+  pca(as.matrix(b()[,2:ncol(b())]),
       ncomp=3,
       center = TRUE,
       scale= TRUE)
@@ -525,7 +541,6 @@ p <- plotIndiv(pca.exp(),
           group = b()[,1],
           pch=as.factor(b()[,1]),
           legend = TRUE,
-          ind.names = set()[,1],
           title = paste0("PCA ", input$var)
           )
 
@@ -543,7 +558,6 @@ f <- ggplot(df, aes(x,
   labs(title = levels(df$Block),
        x = p[["graph"]][["labels"]][["x"]],
        y = p[["graph"]][["labels"]][["y"]]) +
-  scale_color_manual(values=c("blue","darkorange")) +
   theme_test() +
   theme(legend.position="bottom",legend.title=element_blank())+
   geom_hline(yintercept = 0,linetype = "dashed", color="lightgray") +
@@ -577,7 +591,6 @@ p <- plotIndiv(plsda.exp(),
             group = b()[,1],
             pch=as.factor(b()[,1]),
             legend = TRUE,
-            ind.names = set()[,1],
             title = paste0("PLS-DA ", input$var)
             )
 
@@ -595,7 +608,6 @@ f <- ggplot(df, aes(x,
   labs(title = levels(df$Block),
        x = p[["graph"]][["labels"]][["x"]],
        y = p[["graph"]][["labels"]][["y"]]) +
-  scale_color_manual(values=c("blue","darkorange")) +
   theme_test() +
   theme(legend.position="bottom",legend.title=element_blank())+
   geom_hline(yintercept = 0,linetype = "dashed", color="lightgray") +
@@ -702,12 +714,11 @@ output$clustering <- renderPlot({
               scale_y_reverse() +
               geom_point(data =clustering.exp()$labels,
                   aes(x = x,
-                      y = -0.1e8,
+                      y =y,
                       label = b()[clustering.exp()$labels$label,1],
               colour = as.factor(b()[clustering.exp()$labels$label,1])),
-                  hjust =1, angle = 0, size =2)+
+                  hjust =1, angle = 0, size =1)+
               theme_test() +
-              scale_color_manual(values=c("blue","darkorange")) +
               theme(legend.position = "bottom")
 
 
