@@ -126,8 +126,6 @@ b) New groupings if interested
   
    + **PLS-DA**: _Partial Least Squares Regression-Discriminant Analysis_ is a supervised technique of dimensionality reduction as a function of covariance between the original data and its tags.
   
-   + **Volcano Plot**: is a type of scatterplot used to quickly identify changes in large data sets made up of replicated data. Represents the relationship between the magnitude of change (fold change) and statistical significance (p.value).
-  
     + **Hierarchical Cluster**: grouping built with an agglomerative strategy to detect entities with similar characteristics, we use the Euclidean distance and as a linking criterion the one proposed by Ward.
 
 2. Have the possibility to create new groups according to various clinical characteristics and obtain the spectrum for samples
@@ -503,7 +501,7 @@ tabsetPanel(type = "tabs",
                tabPanel("PCA", 
                         plotlyOutput("pca")),
                tabPanel("PLS-DA",plotlyOutput("plsda")),
-               tabPanel("Volcano Plot",plotOutput("volcano")),
+               #tabPanel("Volcano Plot",plotOutput("volcano")),
                tabPanel("Hierarchical Cluster",
                         plotOutput("clustering"))
 
@@ -622,72 +620,72 @@ ggplotly(f,tooltip = "text")
 
 # Volcano plot
 
-volcano.exp <- reactive({
-
-  G0 <- as.data.frame(table(b()[,1]))
-  G1 <- G0[1,1]
-  G2 <- G0[2,1]
-
-g <- NULL
-       for (i in 2:ncol(b())) {
-         AG <- which(b()[,1] == G1)
-         BG <- which(b()[,1] == G2)
-
-         median.AG <- median(b()[which(b()[,1] == G1),i])
-         median.BG <- median(b()[which(b()[,1] == G2),i])
-         fold.change <- median.AG/median.BG
-         log2FC <- log2(fold.change)
-
-         wilcox <- wilcox.test(b()[which(b()[,1] == G1),i],
-                               b()[which(b()[,1] == G2),i])$p.value
-
-         f <- cbind (median.AG,
-                     median.BG,
-                     fold.change,
-                     log2FC,
-                     wilcox)
-
-         g <- rbind(g,f)
-
-       }
-
-       p <- data.frame(g)
-       M <- names(b())[2:ncol(b())]
-       rownames(p) <- M
-       p <- data.frame(Compound=rownames(p),p)
-       rownames(p) <- NULL
-       names(p)[c(2,3)] <- c(as.character(G1),
-                             as.character(G2))
-       p_values_BH <- p.adjust(p = p$wilcox, method = "BH")
-       p <- data.frame(p, p.adjust=p_values_BH)
-       p$Compound <- gsub("X","",p$Compound)
-
- p
-
-})
- 
- 
-output$volcano <- renderPlot({
-
-ggplot(volcano.exp(),aes(x=log2FC, y=-log2(wilcox))) +
-          geom_point()+
-          theme_test() +
-          labs(title = paste0("Volcano plot ",
-                              input$var, "  ",
-                              names(volcano.exp())[2], " vs ",
-                              names(volcano.exp())[3]))+
-          xlab ("log2(FC)") +
-          ylab (" -log2(p-value)") +
-          geom_hline(yintercept = -log2(0.05),
-                     linetype = "dashed", color="lightgray")+
-          geom_vline(xintercept =  log2(2),
-                     linetype = "dashed", color="lightgray")+
-          geom_vline(xintercept = - log2(2), linetype = "dashed",
-                     color="lightgray")+
-          scale_x_continuous(limits = c(-3, 3),breaks = c(-1,0,1))+
-          scale_y_continuous(limits = c(0, 8),breaks = c(0,4.32))
-
-})
+# volcano.exp <- reactive({
+# 
+#   G0 <- as.data.frame(table(b()[,1]))
+#   G1 <- G0[1,1]
+#   G2 <- G0[2,1]
+# 
+# g <- NULL
+#        for (i in 2:ncol(b())) {
+#          AG <- which(b()[,1] == G1)
+#          BG <- which(b()[,1] == G2)
+# 
+#          median.AG <- median(b()[which(b()[,1] == G1),i])
+#          median.BG <- median(b()[which(b()[,1] == G2),i])
+#          fold.change <- median.AG/median.BG
+#          log2FC <- log2(fold.change)
+# 
+#          wilcox <- wilcox.test(b()[which(b()[,1] == G1),i],
+#                                b()[which(b()[,1] == G2),i])$p.value
+# 
+#          f <- cbind (median.AG,
+#                      median.BG,
+#                      fold.change,
+#                      log2FC,
+#                      wilcox)
+# 
+#          g <- rbind(g,f)
+# 
+#        }
+# 
+#        p <- data.frame(g)
+#        M <- names(b())[2:ncol(b())]
+#        rownames(p) <- M
+#        p <- data.frame(Compound=rownames(p),p)
+#        rownames(p) <- NULL
+#        names(p)[c(2,3)] <- c(as.character(G1),
+#                              as.character(G2))
+#        p_values_BH <- p.adjust(p = p$wilcox, method = "BH")
+#        p <- data.frame(p, p.adjust=p_values_BH)
+#        p$Compound <- gsub("X","",p$Compound)
+# 
+#  p
+# 
+# })
+#  
+#  
+# output$volcano <- renderPlot({
+# 
+# ggplot(volcano.exp(),aes(x=log2FC, y=-log2(wilcox))) +
+#           geom_point()+
+#           theme_test() +
+#           labs(title = paste0("Volcano plot ",
+#                               input$var, "  ",
+#                               names(volcano.exp())[2], " vs ",
+#                               names(volcano.exp())[3]))+
+#           xlab ("log2(FC)") +
+#           ylab (" -log2(p-value)") +
+#           geom_hline(yintercept = -log2(0.05),
+#                      linetype = "dashed", color="lightgray")+
+#           geom_vline(xintercept =  log2(2),
+#                      linetype = "dashed", color="lightgray")+
+#           geom_vline(xintercept = - log2(2), linetype = "dashed",
+#                      color="lightgray")+
+#           scale_x_continuous(limits = c(-3, 3),breaks = c(-1,0,1))+
+#           scale_y_continuous(limits = c(0, 8),breaks = c(0,4.32))
+# 
+# })
 
 
 # Clustering
