@@ -170,7 +170,9 @@ wellPanel(
       # Button
       downloadButton("downloadData", "Download"),
       
-      h5(strong("Sample Data Visualization")),
+      h5(strong(
+        #"Sample Data Visualization"
+        )),
         
       dataTableOutput('table')
 
@@ -186,17 +188,17 @@ datasetInput <- reactive({
 
 output$table <- renderDT({
 
-  DT::datatable(datasetInput(),
-            extensions = c('FixedColumns'),
-            options = list(pageLength = 10,
-                      dom = 'lti', 
-            columnDefs = list(
-                         list(className = 'dt-center', targets = "_all")),
-            fixedColumns = list(leftColumns = 1),
-            scrollX = TRUE
-            ),
-            rownames = FALSE
-  )
+  # DT::datatable(datasetInput(),
+  #           extensions = c('FixedColumns'),
+  #           options = list(pageLength = 10,
+  #                     dom = 'lti',
+  #           columnDefs = list(
+  #                        list(className = 'dt-center', targets = "_all")),
+  #           fixedColumns = list(leftColumns = 1),
+  #           scrollX = TRUE
+  #           ),
+  #           rownames = FALSE
+  #)
 
 })
 
@@ -500,10 +502,11 @@ set  <- reactive({
 tabsetPanel(type = "tabs",
                tabPanel("PCA", 
                         plotlyOutput("pca")),
-               tabPanel("PLS-DA",plotlyOutput("plsda")),
+               tabPanel("PLS-DA",
+                        plotlyOutput("plsda")),
                #tabPanel("Volcano Plot",plotOutput("volcano")),
                tabPanel("Hierarchical Cluster",
-                        plotOutput("clustering"))
+                        plotlyOutput("clustering"))
 
             )
 
@@ -576,7 +579,7 @@ plsda.exp <- reactive({
 
   plsda (b()[,2:ncol(b())],
          as.factor(b()[,1]),
-         ncomp= 5,
+         ncomp= 3,
          scale= TRUE,
          mode= "regression")
 
@@ -701,9 +704,13 @@ dend_data
 
 })
 
-output$clustering <- renderPlot({
+output$clustering <- renderPlotly({
 
-  ggplot(clustering.exp()$segments) +
+Patients <- gsub("_.*","", set()[,1])
+Patients <- gsub("^","Sample: ", Patients)
+
+  
+clust<- ggplot(clustering.exp()$segments) +
   geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
               labs(x="",
                    y="Heigth",
@@ -716,12 +723,13 @@ output$clustering <- renderPlot({
                   aes(x = x,
                       y =y,
                       label = b()[clustering.exp()$labels$label,1],
+                      text = Patients,
               colour = as.factor(b()[clustering.exp()$labels$label,1])),
                   hjust =1, angle = 0, size =1)+
               theme_test() +
               theme(legend.position = "bottom")
 
-
+ggplotly(clust, tooltip = "text")
 
 })
 
