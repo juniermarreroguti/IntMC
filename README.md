@@ -1,7 +1,4 @@
-# Integrating metabolic data with clinical/demographic data: a simple and intuitive platform.
-
------
-
+# Integrating metabolic and clinical/demographic data: a simple and intuitive platform.
 
 <div class=text-justify>
 
@@ -21,24 +18,32 @@ An example of the data structure is provided in the application and can also be 
 IntMC is built on the R language (v3.6.3), with an RShiny web interface that allows you to transform complex analytics pipelines into interactive and user-friendly web applications, making them accessible to non-computing experts.
 
 
+&nbsp;&nbsp;&nbsp;
 With IntMC you can work online by accessing [HERE](https://szua92-junier-marrero0guti0rrez.shinyapps.io/IntMC/) or downloading it to run locally. For the latter, you can proceed as follows (in R)
 
 
 </div>
 
 
-```
+``` 
 
-setwd("~") # ~ is the path from where you saved the file.zip
+## FROM Terminal
 
+# "~"" is the path from where you saved the file.zip
+setwd("~")
+
+# Download IntMC-master
 download.file(url= paste("https://github.com/juniermarreroguti/",
                           "IntMC/archive/refs/heads/master.zip", sep=""),
               destfile ="IntMC-master.zip")
-unzip("IntMC-master.zip")
-file.rename("IntMC-master", "IntMC")
-setwd("IntMC")
 
-# run IntMC.Rmd
+# Unzip
+unzip("IntMC-master.zip")
+
+# Rename
+file.rename("IntMC-master", "IntMC")
+
+# open RStudio into IntMC file and rub IntMC.Rmd
 
 ```
 
