@@ -571,10 +571,8 @@ ggplotly(f,tooltip = "text")
 
 })
 
-
 # PLS-DA
-
-
+# Palsda 
 plsda.exp <- reactive({
 
   plsda (b()[,2:ncol(b())],
