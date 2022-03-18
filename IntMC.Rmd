@@ -243,6 +243,11 @@ NOTE: Note that you can input spectral data with and without pre-processing (tra
 
 ```{r Carregar-Dados-UI, echo=FALSE}
 
+  selectInput("approach", "Approach",
+                       choices = c("Targeted", "Non-Targeted"),
+                       selected= c("Non-Targeted"),
+                       multiple = FALSE)
+
   splitLayout(
     
     fileInput("file1", "Mass Spectra",
@@ -467,10 +472,12 @@ data <- reactive({
 })
 
 
-### Esta aqui o NOSSO PROBLEMA. Como definar o menor e maios
+### Applied approachh
 
 set  <- reactive({
 
+if (input$approach == "Non-Targeted"){
+  
   aux2 <- subset(aux1(), aux1()$ions <= values.espectro()[2,2] &
                    aux1()$ions >= values.espectro()[1,2])
 
@@ -482,6 +489,20 @@ set  <- reactive({
   names(aux4) <- gsub("X","", names(aux4))
    
   aux4
+  }else{
+    
+    aux4 <- data.frame(data()[,1:length(category())],
+                   apply(data()[,(length(category())+1):ncol(data())],
+                         2,
+                         function(x){as.numeric(as.character(x))}
+                   )
+                  )
+    
+    names(aux4) <- gsub("X","", names(aux4))
+   
+    aux4
+    
+  }
 
 
 })
