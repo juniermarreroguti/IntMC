@@ -266,8 +266,8 @@ NOTE: Note that you can input spectral data with and without pre-processing (tra
 ```{r Carregar-Dados-UI, echo=FALSE}
 
   selectInput("approach", "Approach",
-                       choices = c("Targeted", "Non-Targeted"),
-                       selected= c("Non-Targeted"),
+                       choices = c("Targeted", "Un-Targeted"),
+                       selected= c("Un-Targeted"),
                        multiple = FALSE)
 
   splitLayout(
@@ -498,7 +498,7 @@ data <- reactive({
 
 set  <- reactive({
 
-if (input$approach == "Non-Targeted"){
+if (input$approach == "Un-Targeted"){
   
   aux2 <- subset(aux1(), aux1()$ions <= values.espectro()[2,2] &
                    aux1()$ions >= values.espectro()[1,2])
@@ -537,10 +537,26 @@ if (input$approach == "Non-Targeted"){
 
 ##  C. Analysis
 
+```{r Analises-RUN , warning= FALSE, message= FALSE,error=FALSE, echo = FALSE}
+
+renderUI({
+
+wellPanel(
+      fluidRow(column(12,align="center",
+                   actionButton("do", "Run"))
+      )
+)
+})
+
+```
+
+
+
 
 ```{r Analises , warning= FALSE, message= FALSE,error=FALSE, echo = FALSE}
 
-# # Painel que mostra as analises que estão implementadas
+
+# Painel que mostra as analises que estão implementadas
 
 tabsetPanel(type = "tabs",
                tabPanel("PCA", 
@@ -554,6 +570,7 @@ tabsetPanel(type = "tabs",
             )
 
 # seleção de Variaveis
+
 b <- reactive({
   
    N <- length(category())
@@ -570,7 +587,7 @@ b <- reactive({
 
 # PCA
  
-pca.exp <- reactive ({
+pca.exp <- eventReactive (input$do,{
   
   pca(as.matrix(b()[,2:ncol(b())]),
       ncomp=3,
@@ -582,7 +599,8 @@ pca.exp <- reactive ({
 })
  
 output$pca <- renderPlotly({
-   
+
+     
 p <- plotIndiv(pca.exp(),
           group = b()[,1],
           pch=as.factor(b()[,1]),
@@ -616,7 +634,7 @@ ggplotly(f,tooltip = "text")
 
 # PLS-DA
 # Palsda 
-plsda.exp <- reactive({
+plsda.exp <- eventReactive (input$do,{
 
   plsda (b()[,2:ncol(b())],
          as.factor(b()[,1]),
@@ -734,7 +752,7 @@ ggplotly(f,tooltip = "text")
 
 # Clustering
 
-clustering.exp <- reactive ({
+clustering.exp <- eventReactive (input$do,{
 
                 set.seed(1234)
                 group <- hclust(dist(b()[,-1], method = 'euclidean'),
@@ -789,8 +807,8 @@ g <- reactive({
 renderDataTable({
   datatable(g(), rownames = FALSE,options = list(dom = 't'))
 
-  })
 
+})
 
 ```
 
