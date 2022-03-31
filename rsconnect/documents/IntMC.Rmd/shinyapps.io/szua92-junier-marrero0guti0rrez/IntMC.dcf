@@ -5,9 +5,9 @@ account: szua92-junier-marrero0guti0rrez
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5383931
-bundleId: 5741710
+bundleId: 5749475
 url: https://szua92-junier-marrero0guti0rrez.shinyapps.io/IntMC/
-when: 1648580361.40184
-lastSyncTime: 1648580361.40186
+when: 1648730452.01822
+lastSyncTime: 1648730452.01823
 asMultiple: FALSE
 asStatic: FALSE

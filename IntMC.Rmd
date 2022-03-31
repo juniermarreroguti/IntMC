@@ -73,11 +73,10 @@ options(shiny.maxRequestSize=40*1024^2)    # equivale a 40MB upload
 <div class=text-justify>
 
 &nbsp;&nbsp;&nbsp;
-Metabolomics has immense potential for early diagnosis and monitoring of therapy and for understanding the pathogenesis of many diseases [@jove_plasma_2017; @zhao_liquid_2018; @dougan_metabolomic_2018; @wei_metabolomics_2013; @righi_metabolomic_2020]. We perceived that it is possible to integrate the results of analytical techniques that study the metabolome with clinical information from patients and not only provide insights into trends and data quality, but also formulate hypotheses and make assumptions with applicability in translational, clinical and diagnostic research.
-
+Metabolomics has immense potential for early diagnosis, therapy monitoring and understanding of disease's pathogenesis [@jove_plasma_2017; @zhao_liquid_2018; @dougan_metabolomic_2018; @wei_metabolomics_2013; @righi_metabolomic_2020].  We perceived that it is possible to integrate the results from analytical techniques used in metabolomics studies with clinical information, to not only provide insights into trends and data quality, but also formulate hypotheses and make assumptions applyed in translational, clinical and diagnostic research to provide better information to decision making. 
 
 &nbsp;&nbsp;&nbsp;
-On this basis, we developed **IntMC, a tool that integrates the results of the analytical techniques of the metabolome with the clinical characteristics of patients in a dynamic, reproducible and simple way**. Integration is achieved with supervised and unsupervised machine learning techniques.
+ On this basis, we developed **IntMC, a tool that integrates the results from the metabolomics' analytical techniques with the clinical characteristics of patients in a dynamic, reproducible and simple way**. Integration is achieved with supervised and unsupervised machine learning techniques.
 
 </div>
 
@@ -97,7 +96,7 @@ Although it is quite intuitive
 &nbsp;&nbsp;&nbsp;
 **IntMC** Needs:
  
-a) From loaded data
+a) From loaded data (espectral and clinical)
 
 b) Perform the selection of clinical variables
 
@@ -132,7 +131,7 @@ b) New groupings if interested
 
   3. The first column of spectrum data and clinical data has to match in identification.
 
-  4. Declaration: data is loaded independently, selection of clinical variables is one by one, spectrum range responds to particular types of metabolites
+  4. Disclaimer: data is loaded independently, selection of clinical variables is one by one, spectrum range responds to particular types of metabolites
 
 </div>
 
@@ -248,7 +247,7 @@ output$downloadData <- downloadHandler(
 ```
 
 ```
-NOTE: Note that you can input spectral data with and without pre-processing (transformation, normalization, scaling, etc). But remember, if you build a new grouping mixing different clinical variables, the change in the number of patients forces you to reproduce the pre-processing if you have done so. Another point, despite the fact that the selection of variables is unique, it can respond to groupings obtained by different clinical characteristics.
+NOTE: you can input spectral data with and without pre-processing (transformation, normalization, scaling, etc). But remember, if you build a new grouping mixing different clinical variables, the change in the number of patients forces you to reproduce the pre-processing if you have done so. Despite the fact that the selection of variables is unique, it can respond to groupings obtained by different clinical characteristics.
 ```
 
 </div>
@@ -266,8 +265,8 @@ NOTE: Note that you can input spectral data with and without pre-processing (tra
 ```{r Carregar-Dados-UI, echo=FALSE}
 
   selectInput("approach", "Approach",
-                       choices = c("Targeted", "Un-Targeted"),
-                       selected= c("Un-Targeted"),
+                       choices = c("Targeted", "UnTargeted"),
+                       selected= c("UnTargeted"),
                        multiple = FALSE)
 
   splitLayout(
@@ -442,7 +441,7 @@ wellPanel(
 
 &nbsp;&nbsp;&nbsp;
 
-Consider that when studying a range of spectra you may be focusing on specific types of metabolites. The first approach does not include any clinical variables, only spectral values will be used for groupings.
+Consider that when studying a range of spectra you may be focusing on specific types of metabolites. The first approach (targeted ou untargeted) does not include any clinical variables, only spectral values will be used for groupings.
 
 </div>
 
@@ -488,7 +487,7 @@ data.frame(
 
 renderPrint({
 
-HTML("Is grouping the data according to the variable", input$var,".
+HTML("Grouping the data according to the variable", input$var,".
   
 In the spectrum range of", paste(input$espectro, collapse="~"), "m/z.")
 
@@ -514,7 +513,7 @@ data <- reactive({
 
 set  <- reactive({
 
-if (input$approach == "Un-Targeted"){
+if (input$approach == "UnTargeted"){
   
   aux2 <- subset(aux1(), aux1()$ions <= values.espectro()[2,2] &
                    aux1()$ions >= values.espectro()[1,2])
