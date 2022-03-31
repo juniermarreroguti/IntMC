@@ -274,12 +274,12 @@ NOTE: you can input spectral data with and without pre-processing (transformatio
     fileInput("file1", "Mass Spectra",
                     multiple = TRUE,
                     accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
+                             "text",
                              ".csv")),
     fileInput("file2", "Clinical Data",
                     multiple = TRUE,
                     accept = c("text/csv",
-                             "text/comma-separated-values,text/plain",
+                             "text",
                              ".csv")))
 
     splitLayout(
@@ -287,16 +287,16 @@ NOTE: you can input spectral data with and without pre-processing (transformatio
     checkboxInput('header1', 'Header', TRUE),
     checkboxInput('ionsid', 'rt_mz', TRUE)),
     radioButtons('sep1', 'Separator',
-                             c("Tab"='\t',
-                               "Comma"=',',
-                               "Semicolon"=';'),
-                                selected = c("Tab")),
+                             c('Tab'='\t',
+                               'Comma'=',',
+                               'Semicolon'=';'),
+                                selected= c('Tab')),
     checkboxInput('header2', 'Header', TRUE),
     radioButtons('sep2', 'Separator',
-                             c("Tab"='\t',
-                               "Comma"=',',
-                               "Semicolon"=';'),
-                                selected = c("Tab"))
+                             c('Tab'='\t',
+                               'Comma'=',',
+                               'Semicolon'=';'),
+                                selected =NULL)
                )
 
   
@@ -348,8 +348,7 @@ renderPrint({
 
 HTML("The data has ", nrow(mass.sp()), "samples and", ncol(mass.sp())-1, " features(m/z).
   
-The samples are described by", ncol(clinical.dat())-1, "clinical characteristics")
-
+Exist ", ncol(clinical.dat())-1, "clinical characteristics for ", nrow(clinical.dat()), " samples")
 })
 
 
