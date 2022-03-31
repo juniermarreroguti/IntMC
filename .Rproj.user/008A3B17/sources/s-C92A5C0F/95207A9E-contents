@@ -1,0 +1,58 @@
+library(shiny)
+library(shinydashboard)
+
+ui <- dashboardPage(
+  dashboardHeader(title = "Test example"),
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Tab 1", tabName = "tab_1"),
+      menuItem("Tab 2", tabName = "tab_2")
+    )
+  ),
+  dashboardBody(
+    tabItems(
+      tabItem("tab_1",
+              h2("Tab 1"),     
+              fluidRow(
+                actionButton("do_refresh_tab_1", "Refresh data")
+              ),
+              fluidRow(
+                dataTableOutput("table1")
+              )
+      ),
+      tabItem("tab_2",
+              h2("Tab 2"),    
+              fluidRow(
+                actionButton("do_refresh_tab_2", "Refresh data")
+              ),
+              fluidRow(
+                dataTableOutput("table2")
+              )
+      )
+    )  
+  )
+)
+
+server <- function(input, output, session) {
+  
+  
+  
+  
+  output$table1 <- renderDataTable({
+    req(input$do_refresh_tab_1)
+    df <- data.frame(value = rnorm(3),
+                     Measurement = rnorm(3),
+                     stringsAsFactors = FALSE)
+    return(df)
+  })
+  
+  output$table2 <- renderDataTable({
+    req(input$do_refresh_tab_2)
+    df <- data.frame(value = rnorm(3),
+                     Measurement = rnorm(3),
+                     stringsAsFactors = FALSE)
+    return(df)
+  })
+}
+
+shinyApp(ui, server)

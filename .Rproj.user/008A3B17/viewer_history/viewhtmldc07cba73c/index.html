@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<style>body{background-color:white;}</style>
+<script src="lib/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="lib/jquery-3.5.0/jquery.min.js"></script>
+<script src="lib/proj4js-2.3.15/proj4.js"></script>
+<link href="lib/highcharts-8.1.2/css/motion.css" rel="stylesheet" />
+<script src="lib/highcharts-8.1.2/highcharts.js"></script>
+<script src="lib/highcharts-8.1.2/highcharts-3d.js"></script>
+<script src="lib/highcharts-8.1.2/highcharts-more.js"></script>
+<script src="lib/highcharts-8.1.2/modules/stock.js"></script>
+<script src="lib/highcharts-8.1.2/modules/map.js"></script>
+<script src="lib/highcharts-8.1.2/modules/annotations.js"></script>
+<script src="lib/highcharts-8.1.2/modules/data.js"></script>
+<script src="lib/highcharts-8.1.2/modules/drilldown.js"></script>
+<script src="lib/highcharts-8.1.2/modules/item-series.js"></script>
+<script src="lib/highcharts-8.1.2/modules/offline-exporting.js"></script>
+<script src="lib/highcharts-8.1.2/modules/overlapping-datalabels.js"></script>
+<script src="lib/highcharts-8.1.2/modules/exporting.js"></script>
+<script src="lib/highcharts-8.1.2/modules/export-data.js"></script>
+<script src="lib/highcharts-8.1.2/modules/funnel.js"></script>
+<script src="lib/highcharts-8.1.2/modules/heatmap.js"></script>
+<script src="lib/highcharts-8.1.2/modules/treemap.js"></script>
+<script src="lib/highcharts-8.1.2/modules/sankey.js"></script>
+<script src="lib/highcharts-8.1.2/modules/dependency-wheel.js"></script>
+<script src="lib/highcharts-8.1.2/modules/organization.js"></script>
+<script src="lib/highcharts-8.1.2/modules/solid-gauge.js"></script>
+<script src="lib/highcharts-8.1.2/modules/streamgraph.js"></script>
+<script src="lib/highcharts-8.1.2/modules/sunburst.js"></script>
+<script src="lib/highcharts-8.1.2/modules/vector.js"></script>
+<script src="lib/highcharts-8.1.2/modules/wordcloud.js"></script>
+<script src="lib/highcharts-8.1.2/modules/xrange.js"></script>
+<script src="lib/highcharts-8.1.2/modules/tilemap.js"></script>
+<script src="lib/highcharts-8.1.2/modules/venn.js"></script>
+<script src="lib/highcharts-8.1.2/modules/gantt.js"></script>
+<script src="lib/highcharts-8.1.2/modules/timeline.js"></script>
+<script src="lib/highcharts-8.1.2/modules/parallel-coordinates.js"></script>
+<script src="lib/highcharts-8.1.2/modules/bullet.js"></script>
+<script src="lib/highcharts-8.1.2/modules/coloraxis.js"></script>
+<script src="lib/highcharts-8.1.2/modules/dumbbell.js"></script>
+<script src="lib/highcharts-8.1.2/modules/lollipop.js"></script>
+<script src="lib/highcharts-8.1.2/modules/series-label.js"></script>
+<script src="lib/highcharts-8.1.2/plugins/motion.js"></script>
+<script src="lib/highcharts-8.1.2/custom/reset.js"></script>
+<script src="lib/highcharts-8.1.2/modules/boost.js"></script>
+<script src="lib/highchart-binding-0.8.2/highchart.js"></script>
+<link href="lib/htmlwdgtgrid-0.0.9/htmlwdgtgrid.css" rel="stylesheet" />
+
+</head>
+<body>
+<div class="grid grid-pad">
+  <div class="col-1-2 mobile-col-1-1">
+    <div id="htmlwidget-bbfc12f291253c21e90a" style="width:100%;height:550px;" class="highchart html-widget"></div>
+    <script type="application/json" data-for="htmlwidget-bbfc12f291253c21e90a">{"x":{"hc_opts":{"chart":{"reflow":true,"width":350,"height":350,"zoomType":"xy"},"title":{"text":"PCA of genes"},"yAxis":{"title":{"text":"PC2:10.28%"}},"credits":{"enabled":false},"exporting":{"enabled":false},"boost":{"enabled":false},"plotOptions":{"series":{"label":{"enabled":false},"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"}},"series":[{"data":[{"x":-10.7173769153415,"y":-13.297357263607,"z":"BT-549","label":"PBO","color":"#E41A1C"},{"x":-11.9390472435137,"y":7.14974695120571,"z":"DU-145","label":"PBO","color":"#E41A1C"},{"x":-14.1021977702003,"y":-29.1707622900469,"z":"HS 578T","label":"PBO","color":"#E41A1C"},{"x":-6.7617405908158,"y":9.97091954367142,"z":"IGROV1","label":"PBO","color":"#E41A1C"},{"x":3.88771970449733,"y":7.57455507052947,"z":"MCF7","label":"PBO","color":"#E41A1C"},{"x":-10.6530073023868,"y":-5.62807035843722,"z":"MDA-MB-231/ATCC","label":"PBO","color":"#E41A1C"},{"x":-14.4257792204883,"y":-5.0846839328376,"z":"NCI/ADR-RES","label":"PBO","color":"#E41A1C"},{"x":-6.36579685878864,"y":10.7002840209353,"z":"OVCAR-3","label":"PBO","color":"#E41A1C"},{"x":-10.9813914777097,"y":8.13507878968403,"z":"OVCAR-4","label":"PBO","color":"#E41A1C"},{"x":-14.0450981774151,"y":8.80265775780919,"z":"OVCAR-5","label":"PBO","color":"#E41A1C"},{"x":-13.816128273821,"y":2.24063551192581,"z":"OVCAR-8","label":"PBO","color":"#E41A1C"},{"x":-12.4258261998885,"y":8.55601241821874,"z":"PC-3","label":"PBO","color":"#E41A1C"},{"x":-12.4326219923967,"y":9.45079852424141,"z":"SK-OV-3","label":"PBO","color":"#E41A1C"},{"x":-2.34434041941277,"y":13.6180471980849,"z":"T-47D","label":"PBO","color":"#E41A1C"}],"type":"scatter","name":"PBO","color":"#E41A1C","tooltip":{"headerFormat":"","pointFormat":"{point.label} {point.z}"},"showInLegend":true},{"data":[{"x":35.9441182345878,"y":-1.21535480536232,"z":"CCRF-CEM","label":"Leukemia","color":"#377EB8"},{"x":28.2535428739852,"y":0.710608059887384,"z":"HL-60(TB)","label":"Leukemia","color":"#377EB8"},{"x":18.2944162390044,"y":-6.70601394043261,"z":"K-562","label":"Leukemia","color":"#377EB8"},{"x":32.5263405911084,"y":4.08945233042711,"z":"MOLT-4","label":"Leukemia","color":"#377EB8"},{"x":23.4215143839015,"y":-0.896717947722485,"z":"RPMI-8226","label":"Leukemia","color":"#377EB8"},{"x":-1.31729958490568,"y":-28.9998356381742,"z":"SR","label":"Leukemia","color":"#377EB8"}],"type":"scatter","name":"Leukemia","color":"#377EB8","tooltip":{"headerFormat":"","pointFormat":"{point.label} {point.z}"},"showInLegend":true}],"xAxis":{"title":{"text":"PC1:21%"}}},"theme":{"chart":{"backgroundColor":"transparent"},"colors":["#7cb5ec","#434348","#90ed7d","#f7a35c","#8085e9","#f15c80","#e4d354","#2b908f","#f45b5b","#91e8e1"]},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","drillUpText":"Back to {series.name}","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"thousandsSep":" ","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+  </div>
+  <div class="col-1-2 mobile-col-1-1">
+    <div id="htmlwidget-c2d85ad6e0fd21726d8d" style="width:100%;height:550px;" class="highchart html-widget"></div>
+    <script type="application/json" data-for="htmlwidget-c2d85ad6e0fd21726d8d">{"x":{"hc_opts":{"chart":{"reflow":true,"width":350,"height":350,"zoomType":"xy"},"title":{"text":"PCA of metabolites"},"yAxis":{"title":{"text":"PC2:23.19%"}},"credits":{"enabled":false},"exporting":{"enabled":false},"boost":{"enabled":false},"plotOptions":{"series":{"label":{"enabled":false},"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"}},"series":[{"data":[{"x":-10.8578474554201,"y":5.96730801341033,"z":"BT-549","label":"PBO","color":"#E41A1C"},{"x":-7.06362490161678,"y":2.85851540169048,"z":"DU-145","label":"PBO","color":"#E41A1C"},{"x":-0.860056852028459,"y":16.8842498111162,"z":"HS 578T","label":"PBO","color":"#E41A1C"},{"x":0.967894471235797,"y":-0.522734138613346,"z":"IGROV1","label":"PBO","color":"#E41A1C"},{"x":-4.36594864324929,"y":-5.04381175812061,"z":"MCF7","label":"PBO","color":"#E41A1C"},{"x":-1.25390880233784,"y":-9.86419708411124,"z":"MDA-MB-231/ATCC","label":"PBO","color":"#E41A1C"},{"x":-5.62868378152049,"y":9.20451615501536,"z":"NCI/ADR-RES","label":"PBO","color":"#E41A1C"},{"x":-9.31195718144847,"y":-3.09708908895043,"z":"OVCAR-3","label":"PBO","color":"#E41A1C"},{"x":1.94887057647341,"y":16.7257872536033,"z":"OVCAR-4","label":"PBO","color":"#E41A1C"},{"x":-8.89071605814065,"y":-3.20938092697996,"z":"OVCAR-5","label":"PBO","color":"#E41A1C"},{"x":-6.4119444347311,"y":4.99307040643542,"z":"OVCAR-8","label":"PBO","color":"#E41A1C"},{"x":-1.129733915456,"y":13.8281242432792,"z":"PC-3","label":"PBO","color":"#E41A1C"},{"x":-18.1730515587962,"y":-3.18386095691529,"z":"SK-OV-3","label":"PBO","color":"#E41A1C"},{"x":-11.1900158495923,"y":-9.8792208288187,"z":"T-47D","label":"PBO","color":"#E41A1C"}],"type":"scatter","name":"PBO","color":"#E41A1C","tooltip":{"headerFormat":"","pointFormat":"{point.label} {point.z}"},"showInLegend":true},{"data":[{"x":22.3819694269853,"y":8.87948776517626,"z":"CCRF-CEM","label":"Leukemia","color":"#377EB8"},{"x":21.6182641231874,"y":1.91496035288525,"z":"HL-60(TB)","label":"Leukemia","color":"#377EB8"},{"x":6.04616124007832,"y":-20.9171185300062,"z":"K-562","label":"Leukemia","color":"#377EB8"},{"x":15.382272821968,"y":-6.26117290186379,"z":"MOLT-4","label":"Leukemia","color":"#377EB8"},{"x":11.1535734525637,"y":-0.358113988901616,"z":"RPMI-8226","label":"Leukemia","color":"#377EB8"},{"x":5.63848332184557,"y":-18.9193191993306,"z":"SR","label":"Leukemia","color":"#377EB8"}],"type":"scatter","name":"Leukemia","color":"#377EB8","tooltip":{"headerFormat":"","pointFormat":"{point.label} {point.z}"},"showInLegend":true}],"xAxis":{"title":{"text":"PC1:25.5%"}}},"theme":{"chart":{"backgroundColor":"transparent"},"colors":["#7cb5ec","#434348","#90ed7d","#f7a35c","#8085e9","#f15c80","#e4d354","#2b908f","#f45b5b","#91e8e1"]},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Chart context menu","decimalPoint":".","downloadJPEG":"Download JPEG image","downloadPDF":"Download PDF document","downloadPNG":"Download PNG image","downloadSVG":"Download SVG vector image","drillUpText":"Back to {series.name}","invalidDate":null,"loading":"Loading...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No data to display","numericSymbols":["k","M","G","T","P","E"],"printChart":"Print chart","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"thousandsSep":" ","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+  </div>
+</div>
+</body>
+</html>
