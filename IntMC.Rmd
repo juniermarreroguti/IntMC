@@ -307,6 +307,7 @@ NOTE: Note that you can input spectral data with and without pre-processing (tra
 
 
 
+
 ```{r Carregar Dados-Server, echo=FALSE}
 
 mass.sp <- reactive({
@@ -414,6 +415,21 @@ aux1
 
 })
 
+
+```
+
+
+
+```{r Loaded-Data , warning= FALSE, message= FALSE,error=FALSE, echo = FALSE}
+
+renderUI({
+
+wellPanel(
+      fluidRow(column(12,align="center",
+                   actionButton("do", "Loaded"))
+      )
+)
+})
 
 ```
 
@@ -537,23 +553,9 @@ if (input$approach == "Un-Targeted"){
 
 ##  C. Analysis
 
-```{r Analises-RUN , warning= FALSE, message= FALSE,error=FALSE, echo = FALSE}
-
-renderUI({
-
-wellPanel(
-      fluidRow(column(12,align="center",
-                   actionButton("do", "Run"))
-      )
-)
-})
-
-```
 
 
-
-
-```{r Analises , warning= FALSE, message= FALSE,error=FALSE, echo = FALSE}
+```{r Analises , echo = FALSE, warning= FALSE, message=FALSE,comment= FALSE, error=FALSE}
 
 
 # Painel que mostra as analises que estão implementadas
@@ -805,9 +807,11 @@ g <- reactive({
 
 
 renderDataTable({
+  
+  req(input$do)
+
   datatable(g(), rownames = FALSE,options = list(dom = 't'))
-
-
+  
 })
 
 ```
@@ -824,13 +828,12 @@ We understand that it could be interesting to explore how the separation of pati
 </div>
 
 
-```{r Ajuda-UI, echo = FALSE}
+```{r Ajuda-UI, echo = FALSE, warning= FALSE, message=FALSE,comment= FALSE, error=FALSE}
 
 
 renderUI({
   
-  
-  
+
 tabsetPanel(
     
     tabPanel("Selection",
@@ -886,6 +889,13 @@ renderUI({
 
 textOutput("resumo"),
    
+          wellPanel(
+              fluidRow(column(12,align="center",
+                           actionButton("go", "Grouping"))
+              )
+          ),
+
+
 wellPanel(
     
   fluidRow(
@@ -913,7 +923,7 @@ wellPanel(
 
 
 
-```{r Ajuda-Identifação de variavies, echo=FALSE}
+```{r Ajuda-Identifação de variavies,  echo = FALSE, warning= FALSE, message=FALSE,comment= FALSE, error=FALSE}
 
 # Variaveis Clinicas
 
@@ -1000,7 +1010,7 @@ categoria4 <- reactive({
 value1 <- reactive({
   
  Y <- data.frame(Sample = clinical.dat()[,1],
-            Value= clinical.dat()[, which(names(clinical.dat())==input$clinica1)])
+                 Value= clinical.dat()[,    which(names(clinical.dat())==input$clinica1)])
  Y <- as.character(unique(Y$Value))
  Y <- c("None", Y)
  Y
@@ -1042,7 +1052,9 @@ value4 <- reactive({
 ```
 
 
-```{r Seleção-Variaveis, echo=FALSE}
+
+
+```{r Seleção-Variaveis, echo = FALSE, warning= FALSE, message=FALSE,comment= FALSE, error=FALSE}
 
 
 H <- reactive({
@@ -1051,7 +1063,7 @@ H <- reactive({
                   Value= clinical.dat()[, 
                     c(which(names(clinical.dat())==input$clinica1),
                       which(names(clinical.dat())==input$clinica2),
-                      which(names(clinical.dat())==input$clinica3),                                             which(names(clinical.dat())==input$clinica4))])
+                      which(names(clinical.dat())==input$clinica3),                                   which(names(clinical.dat())==input$clinica4))])
   H
   
 })
@@ -1191,7 +1203,8 @@ mass.filter <- reactive({
 ```
 
 
-```{r Download-Filtering, echo=FALSE}
+
+```{r Download-Filtering, echo = FALSE, warning= FALSE, message=FALSE,comment= FALSE, error=FALSE}
 
 
 # output$resumo <- renderText({
