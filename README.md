@@ -45,7 +45,7 @@ unzip("IntMC-master.zip")
 # Rename
 file.rename("IntMC-master", "IntMC")
 
-# open RStudio into IntMC file and rub IntMC.Rmd
+# open RStudio into IntMC file and run IntMC.Rmd
 
 ```
 
